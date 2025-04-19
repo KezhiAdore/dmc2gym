@@ -1,0 +1,21 @@
+[project] 
+name = "dmc2gym"
+version = "1.1.0"
+description = "a gym like wrapper for dm_control"
+
+authors = [
+    { name="Zhao Yu", email="1538001851@qq.com" },
+  ]
+
+readme = "README.md"
+
+requires-python = ">=3.8"
+
+dependencies = [
+  "gymnasium>=0.26",
+  "dm_control>=1.0.28",
+]
+
+[build-system] 
+requires = ["hatchling"] 
+build-backend = "hatchling.build"
