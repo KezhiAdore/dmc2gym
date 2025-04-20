@@ -149,17 +149,23 @@ class DMCWrapper(core.Env):
         assert self._true_action_space.contains(action)
         reward = 0
         extra = {'internal_state': self._env.physics.get_state().copy()}
-
+        
+        terminated, truncated = False, False
         for _ in range(self._frame_skip):
             time_step = self._env.step(action)
             reward += time_step.reward or 0
-            done = time_step.last()
-            if done:
+            if time_step.last():
+                if time_step.discount >  0:
+                    truncated = True
+                else:
+                    terminated = True
+            if terminated or truncated:
                 break
         obs = self._get_obs(time_step)
         self.current_state = _flatten_obs(time_step.observation)
         extra['discount'] = time_step.discount
-        return obs, reward, done, extra
+        extra['step_type'] = time_step.step_type
+        return obs, reward, terminated, truncated, extra
 
     def reset(self, seed=None, options=None):
         if seed is not None:
@@ -167,7 +173,7 @@ class DMCWrapper(core.Env):
         time_step = self._env.reset()
         self.current_state = _flatten_obs(time_step.observation)
         obs = self._get_obs(time_step)
-        return obs
+        return obs, {}
 
     def render(self, mode='rgb_array', height=None, width=None, camera_id=0):
         assert mode == 'rgb_array', 'only support rgb_array mode, given %s' % mode
